@@ -5,4 +5,4 @@ bin/
 target/
 release.properties
 pom.xml.releaseBackup
-test.properties
+data/
