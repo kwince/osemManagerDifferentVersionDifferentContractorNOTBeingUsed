@@ -19,6 +19,7 @@ public class App
     public static void main( String[] args )
     {
         try {
+// Testing permissions
 //        	OsemMangerFactory factory = new OsemMangerFactory("my_osem", "elasticsearch");
         	OsemMangerFactory factory = new OsemMangerFactory();
         	OsemManager osem = factory.createOsemManager();
