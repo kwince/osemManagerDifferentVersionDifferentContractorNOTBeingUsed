@@ -6,10 +6,11 @@
 	<parent>
 		<artifactId>kwince-parent</artifactId>
 		<groupId>com.kwince</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2</version>
 	</parent>
 	<groupId>com.kwince.contribs</groupId>
 	<artifactId>osemManager</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>osemManager</name>
 	<url>http://github.com/kwince/osemManager</url>
 
