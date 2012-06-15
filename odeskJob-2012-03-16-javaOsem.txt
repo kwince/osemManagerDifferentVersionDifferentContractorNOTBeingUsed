@@ -1,0 +1,37 @@
+1/ create a 2 classes under a maven 3 environment and store them in a public repository.
+
+2/ class to be called 'osemManagerFactory' and 'osemManager'
+
+3/ configuration file, if used during instantiation, is in the same directory as 'persistence.xml' is. This config file is called 'osem.json'
+
+4/ Constructos:
+    a) One constructor has following arguments and their defaults:
+  String vendor=NULL,
+  String storeName=NULL,
+  Boolean reindex=false
+
+    b) Another constructor has the following argument:
+  byte array configJson
+
+    c) no arg constructor
+
+Item four is to adapted or modifird after looking various search engines capable of OSEM (http://elasticsearch-users.115913.n3.nabble.com/Object-Search-Engine-Mapping-td2634577.html , http://www.compass-project.org/docs/latest/reference/html/core-osem.html .) 
+
+Elasticsearch is the primary focus, however.
+
+5/  The basic flow and class diagram shoulf be modelled on JPA: http://schuchert.wikispaces.com/JPA+Tutorial+1+-+Getting+Started
+
+The does need to be the osemManagerFactory class as well.
+
+The first version of this project will NOT use any annotations, assuming that an entire POJO submitted will be saved/updated, all fields. KISS.
+
+6/ schema/mapping
+    a) A mapping will eventually be  required. For the first version, in accordance with agile development, this will be skipped and pushed off into a future driver level class
+
+7/ The main methods of the class used to access the document store are:
+  create( object object ), read( id idType ), update(obkect object), delete( id idType ), search( byteArray nativeQuery).
+
+8/ The pojos/entities CRUDed will have either use event signaling in the osemManager or pre/post action functions in the entity, like preCreate(), preRead(), preUpdate(), postDeletr(), etc.
+
+
+All objec

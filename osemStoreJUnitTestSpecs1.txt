@@ -1,0 +1,37 @@
+DESIGN SPEC CHANGES
+-------------------
+1/ Move 'osem.json' to ../src/main/resources/META-INF/osem.json
+2/ Use the following constructor signatures for 'osemmanagerFactory'
+   A/ osemManagerFactory()
+   B/ osemManagerFactory(String storeName)
+   C/ osemManagerFactory(String storeName, String jsonConfig)
+
+
+==================
+**T**E**S**T**S**
+==================
+These are all PRE DRIVER errors. The driver throw whatever you want to design as common exceptions for all drivers
+
+[common to all constructor types]
+1/ Invalid JSON in OSEM configuration.
+2/ No 'osemStores' array found in JSON configuration.
+3/ No osemStores found in 'osemStores' - array empty.
+4/ Invalid 'osemStore' found in JSON configuration - bad 'name' parameter
+    (empty string, only white space, or missing entirely)
+5/ Invalid 'osemStore' found in JSON configuration - bad 'vendor' parameter
+    (empty string, only white space, or missing entirely)
+6/ Invalid 'osemStore' found in JSON configuration - bad 'driverClass' parameter
+    (empty string, only white space, or missing entirely)
+7/ Specified 'osemStore' not found in 'osemStores' array.
+8/ Unable to find 'driverClass' - 'theParameterValue'
+9/ Unalbe to load 'driverClass' - 'theParameterValue' - permission problem?
+
+[for default constructor]
+10/ 'osem.json' configuration file NOT FOUND at '../src/main/resources/META-INF/osem.json'
+  (Someday we may face the same thing that JPA faces, how to specify the config file at run time?)
+11/ Default constructor not designed to choose from multiple osemStores in JSON configuration.
+
+
+Can you think of any others?
+Please set up the the pre and post conditions for these tests, you are a good programmer from what I've seen.
+

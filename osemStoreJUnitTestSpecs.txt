@@ -1,0 +1,39 @@
+
+//Test for NO VALID SCHEMA WITH DEFAULT CONSTRUCTOR
+PreConditions
+  Delete 'osem.json'
+  Delete elasticsearch indexes
+Test
+  create new osemManagerFactory with default constructor
+  results-FAIL - throw exception, message 'No Osem Store Supplied or Configured'
+
+-------------------------------------------------------
+//Test for DEFAULT CONSTRUCTOR ACCESSING 'osem.json', single store in 'osem.json'
+PreConditions
+  Existing 'osem.json' file with a *SINGLE* 'osemStore' for an ElasticSearch index store the array 'osemStores'
+  Delete ElasticStore indexes.
+
+Test
+  create new osemManagerFactory with default constructor
+  result-SUCCESS
+ 
+Test
+  Does index exist?
+  result-SUCCESS if index exists, failure otherwise
+
+  create new osemManager
+  result-SUCCESS if reference for new OsemManager not NULL
+
+-------------------------------------------------------
+//Test for DEFAULT CONSTRUCTOR ACCESSING 'osem.json', multiple stores in 'osem.json'
+PreConditions
+  Existing 'osem.json' file with *MULTIPLE* 'osemStore' for an ElasticSearch store in the array 'osemStores'
+    (The test is if there are multiple stores for ANY vendor, NOT just ElasticSearch
+  Delete ElasticStore indexes.
+
+Test
+  create new osemManagerFactory with default constructor
+  result-FAIL - throw exception, message 'Default Constructor Cannot Choose Between Mulitple OsemStores in Configuration'
+ 
+<<end as of 2012-04-04 21:55:31 -0700>>
+

@@ -1,0 +1,155 @@
+NOTE:
+
+There should be a minimimum of 3 classes:
+
+  osemManagerFactory
+  osemManager
+  osemStore(s) (should this be plural?)
+
+and the JUnit test classes
+
+  osemManagerFactoryTest
+  osemManagerTest
+  osemStore(s)Test (should this be plural?)
+
+
+Reason for reworking code:
+----------------------------
+1/ Did not work with 'com.kwince.listings.Listing' class having a 'com.kwince.util.entity.PublicEntity' class parent.
+   This is our main focus of the company's code base at this point.
+    (ask for access to the project containing this code)
+2/ Tests were too verbose and not organized or executed in a standard way, (NOT JUnit based as asked)
+3/ Package names did not match the directory structure and did not advertise the source of the code,
+   i.e. my company.
+4/ No Javadocs
+
+
+
+Main things to change or do to the existing code:
+-------------------------------------------------
+1/ Change all the directories to:
+(DONE-->)A/ directory structure should match package structure. 
+(DONE-->)B/ rewrite all package names to work in compiling
+
+
+//NOTE http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html
+
+2/ Rework factory class - 
+         A/ remove all references to Elastic Search.
+         B/ Rewrite class as necessary:
+              to meet best standard pratices
+              solve problems listed above
+              meet requirements
+
+3/ Establish  interfaces for:
+         A/ what the factory needs to do 
+             to or with the 'osemStores' class.
+         B/ What the factory needs to do with any 'generic' osemManager class
+
+3/ Rework the ElasticSearch driver class,  or ANYTHING that pertains to it to:
+         A/ Work with the correctly structured factory class.
+         B/ Accept input from the external JSON config file (already translated via osemManagerFactory? osemStores?)
+         C/ Have a set of public methods that are:
+            Based on REST (they can all throw osemException)
+                void create(Object entity) 
+                <T> T read(Class<T> entityClass, Object primaryKey) 
+                <T> T update(T entity) 
+                void delete(Object entity)
+                SearchResponse<T> search(Class<T> entityClass, String nativeQueryForDriver)
+            Based on JPA EntityManager
+                void persist(Object entity) 
+                <T> T find(Class<T> entityClass, Object primaryKey) 
+                <T> T merge(T entity) 
+                void remove(Object entity)
+                void refresh(Object entity)
+                ----->void flush() 
+                ----->void lock(Object entity, LockModeType lockMode) 
+                ----->boolean contains(Object entity) 
+         D/ items with '-' in front of them should not be implemented and
+                have empty method bodies or just return what is necessary
+                to signal success
+
+               
+4/ Propose and write a 'SearchResponse<T>' Interface. I am totally open to suggestions here, since
+      no datastore/Search engine will be the same. For the moment, I just want to get the items and some basic results data,
+      at this point. Here are the minimum attributes of the class, I believe:
+
+int totalHits;
+List<T> Hits;	
+long timeTookInMillis;
+
+
+4/ Rewrite tests to be JUnit based and match the requirements in the *.txt files included with this.
+        A/ There should be at least the following test classes:
+               osemManagerFactoryTest{}
+               osemManagerTest{}
+               osemStoreTest{}
+        B/ Divide the requirements testing between the classes to the best place for each one.
+        C/ Probably the code in the individual classes the previous guy wrote for each test could
+           be reused?
+
+NOTE: The tests already written are a pretty good list of the main requirements, other than the whole osemManger 
+working for # 5 next :-)
+
+5/ Have class able to work with the 'Listing' class and it's parent 'com.kwince.util.entity.PublicEntity'
+
+6/ Verify and test that the 'osem.json' file is searched for in the correct place when the this jar/project
+      is added to another project. Make sure that it does not search inside of the jar only, that a user
+      of the project can change the functionality of the osemManager factory using the osem.json file.
+      This should be part of the JUNIT tests
+
+7/ Move all properties of the individual 'osemStore's in the osem.json file except 'name', 'vendor', 'driverClass' into a JSON object called
+      'properties'. The code should find that information there. See the examples at the end of this file.
+
+
+8/ Add Javadocs as you modify code. Only document the 3 -4 main classes and what you modify or figure is very important.
+
+
+osem.json file versions
+OLD VERSION
+-------------
+{ "osemStores":[
+    { 
+      "name": "my_osem",
+      "vendor": "ElasticSearch",
+      "driverClass": "com.osem.common.ElasticClient",
+      "clientType": "node",
+      "nodeClient":{ 
+        "node.client": false,
+        "cluster.name": "elasticsearch",
+        "node.local": false
+      },
+      "transportClient":{ 
+        "host": "localhost",
+        "port": 9300, 
+        "cluster.name": "elasticsearch", 
+        "client.transport.sniff": true
+      }
+   }]
+}
+
+NEW VERSION
+-----------
+{ "osemStores":[
+    { 
+      "name": "my_osem",
+      "vendor": "ElasticSearch",
+      "driverClass": "com.osem.common.ElasticClient",
+      "properties":{
+          "clientType": "node",
+          "nodeClient":{ 
+            "node.client": false,
+            "cluster.name": "elasticsearch",
+            "node.local": false
+          },
+          "transportClient":{ 
+            "host": "localhost",
+            "port": 9300, 
+            "cluster.name": "elasticsearch", 
+            "client.transport.sniff": true
+          }
+       }
+    }]
+}
+
+
