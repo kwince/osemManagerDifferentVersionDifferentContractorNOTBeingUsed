@@ -7,12 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest.OpType;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.WrapperQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.es.cfg.Configuration;
@@ -23,6 +29,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+/**
+ * OsemSession implementation that uses elastic search as the underlying
+ * document database.
+ * 
+ * @author Allan Ramirez (ramirezag@gmail.com)
+ * 
+ */
 public class OsemSessionImpl implements OsemSession {
     /**
      * 
@@ -81,7 +94,8 @@ public class OsemSessionImpl implements OsemSession {
             throw new MappingException(String.format("%s is not an document.", documentClass));
         }
         log.info("Deleting all records in {} type", getType(documentClass));
-        client.admin().indices().prepareDeleteMapping(indexName).setType(getType(documentClass)).execute().actionGet();
+        client.prepareDeleteByQuery(indexName).setTypes(getType(documentClass)).setQuery(QueryBuilders.matchAllQuery()).execute()
+                .actionGet();
     }
 
     /*
@@ -124,9 +138,26 @@ public class OsemSessionImpl implements OsemSession {
     /*
      * (non-Javadoc)
      * 
+     * @see org.kwince.osem.OsemSession#findAll(java.lang.Class,
+     * java.lang.String)
+     */
+    public <T> List<T> findAll(Class<T> documentClass, String jsonQuery) {
+        WrapperQueryBuilder wrapper = QueryBuilders.wrapperQuery(jsonQuery);
+        SearchResponse response = client.prepareSearch().setIndices(indexName).setTypes(getType(documentClass)).setQuery(wrapper)
+                .execute().actionGet();
+        List<T> results = new ArrayList<T>();
+        for (SearchHit hit : response.getHits()) {
+            results.add(config.createObject(documentClass, hit.getSource()));
+        }
+        return results;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.kwince.osem.OsemSession#save(java.lang.Object)
      */
-    public void save(Object document) throws DocumentExistsException {
+    public String save(Object document) throws DocumentExistsException {
         if (!config.isDocument(document)) {
             throw new MappingException(String.format("%s is not an document.", document.getClass()));
         }
@@ -137,7 +168,12 @@ public class OsemSessionImpl implements OsemSession {
         try {
             Map<String, Object> sourceMap = config.createSourceMap(document);
             log.info("Saving {} with id {}", type, id);
-            client.prepareIndex(indexName, type, id).setOpType(OpType.CREATE).setRefresh(true).setSource(sourceMap).execute().actionGet();
+            IndexRequestBuilder request = client.prepareIndex(indexName, type);
+            if (StringUtils.isNotBlank(id)) {
+                request = request.setId(id);
+            }
+            IndexResponse response = request.setOpType(OpType.CREATE).setRefresh(true).setSource(sourceMap).execute().actionGet();
+            return response.getId();
         } catch (DocumentAlreadyExistsException e) {
             String message = String.format("%s with id %s already exists.", type, id);
             log.error(message, e);
@@ -158,7 +194,11 @@ public class OsemSessionImpl implements OsemSession {
         String type = getType(document.getClass());
         log.info("Save or update {} with id {}", type, id);
         Map<String, Object> sourceMap = config.createSourceMap(document);
-        client.prepareIndex(indexName, type, id).setRefresh(true).setSource(sourceMap).execute().actionGet();
+        IndexRequestBuilder request = client.prepareIndex(indexName, type);
+        if (StringUtils.isNotBlank(id)) {
+            request = request.setId(id);
+        }
+        request.setRefresh(true).setSource(sourceMap).execute().actionGet();
     }
 
     protected String getIndexName() {
@@ -173,18 +213,31 @@ public class OsemSessionImpl implements OsemSession {
         Class<?> cls = document.getClass();
         DocumentMetadata metadata = config.getDocument(cls);
         if (document != null && metadata.getIdField() != null) {
-            Field field = metadata.getIdField();
+            Field idField = metadata.getIdField();
             try {
-                Method method = metadata.getGetter(field);
-                Object result = method.invoke(document);
-                if (result != null) {
-                    return result.toString();
+                Method method = metadata.getGetter(idField);
+                Object value = method.invoke(document);
+                if (String.class == idField.getType()) {
+                    // Elastic Search automatically generates hash id if null
+                    return (String) value;
                 } else {
-                    throw new MappingException(String.format("Id field %s has no value.", cls.getName() + field.getName()));
+                    if (Number.class.isAssignableFrom(ClassUtils.primitiveToWrapper(idField.getType()))) {
+                        Long longVal = Long.valueOf(value.toString());
+                        if (longVal > 0) {
+                            return longVal.toString();
+                        } else {
+                            throw new MappingException("Number id field values must be more than 0.");
+                        }
+                    } else {
+                        if (value == null) {
+                            throw new MappingException(String.format("Id field %s has no value.", cls.getName() + idField.getName()));
+                        }
+                        return value.toString();
+                    }
                 }
             } catch (Exception e) {
-                log.error("Exception when invoking getters for " + cls.getName() + "." + field.getName(), e);
-                throw new MappingException(String.format("Exception when invoking getters for %s", cls.getName() + field.getName()), e);
+                log.error("Exception when invoking getters for " + cls.getName() + "." + idField.getName(), e);
+                throw new MappingException(String.format("Exception when invoking getters for %s", cls.getName() + idField.getName()), e);
             }
         } else {
             throw new MappingException(String.format("%s has no annotated id.", cls.getName()));

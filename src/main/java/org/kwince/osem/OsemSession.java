@@ -6,8 +6,8 @@ import java.util.List;
 import org.kwince.osem.es.exception.DocumentExistsException;
 
 /**
- * Interface used to interact with search or document stores like create, remove
- * and find entities.
+ * Interface used to interact with search or document stores to perform CRUD
+ * operations to entities or documents.
  * 
  * <p>
  * This interface is inspired from {@link javax.persistence.documentManager} in
@@ -27,21 +27,34 @@ public interface OsemSession extends Serializable {
      */
     <T> int count(Class<T> clazz);
 
+    /**
+     * Delete document or entity.
+     * 
+     * @param clazz
+     *            document class
+     * @param id
+     *            document identifier
+     */
     <T> void delete(Class<T> clazz, Serializable id);
 
-    // public void delete(Class<?> clazz, List<Serializable> ids);
-
+    /**
+     * Delete all documents identified by class.
+     * 
+     * @param clazz
+     */
     void deleteAll(Class<?> clazz);
 
     /**
      * Save an instance to document store.
      * 
+     * 
      * @param document
      *            document instance
+     * @return id
      * @throws DocumentExistsException
      *             if the document identified by id already exists.
      */
-    void save(Object document) throws DocumentExistsException;
+    Serializable save(Object document) throws DocumentExistsException;
 
     /**
      * Save an instance to document store.
@@ -65,10 +78,19 @@ public interface OsemSession extends Serializable {
     <T> T find(Class<T> documentClass, Serializable primaryKey);
 
     /**
-     * Search all entities of the specified class
+     * Search all documents of the specified class
      * 
      * @param documentClass
-     * @return list of all entities or records
+     * @return list of all entities or documents
      */
     <T> List<T> findAll(Class<T> documentClass);
+
+    /**
+     * Search all documents of the specified class that matches the query
+     * 
+     * @param documentClass
+     * @param query
+     * @return list of all entities or documents
+     */
+    <T> List<T> findAll(Class<T> documentClass, String query);
 }

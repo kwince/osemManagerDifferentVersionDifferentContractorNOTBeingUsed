@@ -7,6 +7,23 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * Is used to specify the mapped column for object type property or field. This
+ * is optional. By default, all fields which are not marked as @Transient, not a
+ * subclass of java Collection and not an instance of Array in a document class
+ * is mapped.
+ * 
+ * <blockquote>
+ * 
+ * <pre>
+ *    Example 1:
+ * 
+ *    &#064;ObjectProperty(name="DESC")
+ *    private Name name;
+ * 
+ * </pre>
+ * 
+ * </blockquote>
+ * 
  * @author Allan Ramirez (ramirezag@gmail.com)
  * 
  */
