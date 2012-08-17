@@ -159,7 +159,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public String save(Object document) throws DocumentExistsException {
         if (!config.isDocument(document)) {
-            throw new MappingException(String.format("%s is not an document.", document.getClass()));
+            throw new MappingException(String.format("%s is not a document.", document.getClass()));
         }
         String id = getIdValue(document);
         String type = getType(document.getClass());

@@ -30,6 +30,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * Tests all CRUD operations performed on an Elastic Search Client (Node Client)
+ * created by NodeClientOsemSessionFactoryBean.
+ * <p>
+ * This class showcases how to use the api of this project. Feel free to add
+ * more test cases here in case there are scenarios missed.
+ * </p>
+ * 
+ * @author Allan Ramirez (ramirezag@gmail.com)
+ * 
+ */
 public class EsOsemSessionFactoryTest {
     private static final String ES_DEFAULT_DATA_PATH = "data";
     private static Logger log = LoggerFactory.getLogger(EsOsemSessionFactoryTest.class);
