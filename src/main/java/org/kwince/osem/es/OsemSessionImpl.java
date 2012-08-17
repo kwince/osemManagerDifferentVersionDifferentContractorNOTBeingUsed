@@ -48,13 +48,13 @@ public class OsemSessionImpl implements OsemSession {
      * 
      * @see org.kwince.osem.OsemSession#count(java.lang.Class)
      */
-    public <T> long count(Class<T> documentClass) {
+    public <T> int count(Class<T> documentClass) {
         if (!config.isDocument(documentClass)) {
             throw new MappingException(String.format("%s is not an document.", documentClass));
         }
         log.info("Fetching {} total records.", getType(documentClass));
         CountResponse count = client.prepareCount(indexName).setTypes(getType(documentClass)).execute().actionGet();
-        return count.count();
+        return Long.valueOf(count.count()).intValue();
     }
 
     /*
@@ -68,7 +68,7 @@ public class OsemSessionImpl implements OsemSession {
             throw new MappingException(String.format("%s is not an document.", documentClass));
         }
         log.info("Deleting record in {} type with id {}", getType(documentClass), id);
-        client.prepareDelete(indexName, getType(documentClass), id.toString()).execute().actionGet();
+        client.prepareDelete(indexName, getType(documentClass), id.toString()).setRefresh(true).execute().actionGet();
     }
 
     /*
@@ -97,7 +97,8 @@ public class OsemSessionImpl implements OsemSession {
         log.info("Getting record in {} with id {}", getType(documentClass), primaryKey);
         GetResponse response = client.prepareGet(indexName, getType(documentClass), primaryKey.toString()).execute().actionGet();
         try {
-            return config.createObject(documentClass, response.getSource());
+            Map<String, Object> sourceMap = response.getSource();
+            return response.exists() ? config.createObject(documentClass, sourceMap) : null;
         } catch (Exception e) {
             throw new MappingException("Failed to convert json source to " + documentClass.getName(), e);
         }
@@ -136,7 +137,7 @@ public class OsemSessionImpl implements OsemSession {
         try {
             Map<String, Object> sourceMap = config.createSourceMap(document);
             log.info("Saving {} with id {}", type, id);
-            client.prepareIndex(indexName, type, id).setOpType(OpType.CREATE).setSource(sourceMap).execute().actionGet();
+            client.prepareIndex(indexName, type, id).setOpType(OpType.CREATE).setRefresh(true).setSource(sourceMap).execute().actionGet();
         } catch (DocumentAlreadyExistsException e) {
             String message = String.format("%s with id %s already exists.", type, id);
             log.error(message, e);
@@ -157,7 +158,11 @@ public class OsemSessionImpl implements OsemSession {
         String type = getType(document.getClass());
         log.info("Save or update {} with id {}", type, id);
         Map<String, Object> sourceMap = config.createSourceMap(document);
-        client.prepareIndex(indexName, type, id).setSource(sourceMap).execute().actionGet();
+        client.prepareIndex(indexName, type, id).setRefresh(true).setSource(sourceMap).execute().actionGet();
+    }
+
+    protected String getIndexName() {
+        return indexName;
     }
 
     protected <T> String getType(Class<T> clazz) throws MappingException {

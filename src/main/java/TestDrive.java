@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Map;
 
-import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -9,8 +9,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 
@@ -43,21 +41,21 @@ public class TestDrive {
             Map<String, Object> source = new HashMap<String, Object>();
             source.put("message", "test message");
             source.put("rank", 123);
-            source.put("rank2", null);
-            IndexResponse result = client.prepareIndex("twitter", "tweet", "1").setSource(source).execute().actionGet();
-            
+            IndexResponse result = client.prepareIndex("twitter", "tweet", "1").setRefresh(true).setSource(source).execute().actionGet();
 //            IndexResponse result = client.prepareIndex("twitter", "tweet", "1").setSource(source).setOpType(OpType.CREATE).execute().actionGet();
 //            System.out.println(result.getVersion());
 //
             GetResponse response = client.prepareGet("twitter", "tweet", "1").execute().actionGet();
             System.out.println(response.getSourceAsString());
+            CountResponse countResponse = client.prepareCount("twitter").setTypes("tweet").execute().actionGet();
+            System.out.println(countResponse.count());
 //            for(Object obj : response.getSource().values()) {
 //                System.out.println(obj);
 //            }
-            source.put("rank2", "rank2");
-            client.prepareIndex("twitter", "tweet", "1").setSource(source).execute().actionGet();
-            response = client.prepareGet("twitter", "tweet", "1").execute().actionGet();
-            System.out.println(response.getSourceAsString());
+//            source.put("rank2", "rank2");
+//            client.prepareIndex("twitter", "tweet", "1").setSource(source).execute().actionGet();
+//            response = client.prepareGet("twitter", "tweet", "1").execute().actionGet();
+//            System.out.println(response.getSourceAsString());
             
             // System.out.println("Search All Types");
             // SearchResponse response =

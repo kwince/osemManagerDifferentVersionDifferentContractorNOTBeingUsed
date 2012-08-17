@@ -25,7 +25,7 @@ public interface OsemSession extends Serializable {
      *            class to count
      * @return total entities
      */
-    <T> long count(Class<T> clazz);
+    <T> int count(Class<T> clazz);
 
     <T> void delete(Class<T> clazz, Serializable id);
 

@@ -22,7 +22,7 @@ import org.springframework.util.ClassUtils;
 public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory, InitializingBean {
     private static final String RESOURCE_PATTERN = "/**/*.class";
 
-    private ThreadLocal<OsemSession> threadLocal = new ThreadLocal<OsemSession>();
+    protected ThreadLocal<OsemSession> threadLocal = new ThreadLocal<OsemSession>();
 
     private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
@@ -54,10 +54,9 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(indexName);
         config = new Configuration();
-        initEsConfig();
-
         scanPackages(config);
-        config.build();
+        getConfiguration().build();
+        initEsConfig();
     }
 
     @Override
@@ -93,11 +92,11 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
                     }
                 }
             } catch (IOException ex) {
-                throw new MappingException("Failed to scan classpath for unlisted classes", ex);
+                throw new MappingException("Failed to load annotated classes from classpath", ex);
             } catch (ClassNotFoundException ex) {
                 throw new MappingException("Failed to load annotated classes from classpath", ex);
             } catch (ModificationException ex) {
-                throw new MappingException("Failed to scan classpath for unlisted classes", ex);
+                throw new MappingException("Failed to load annotated classes from classpath", ex);
             }
         }
     }

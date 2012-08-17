@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.kwince.osem.es.annotation.Document;
 import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.ObjectProperty;
@@ -181,7 +184,13 @@ public class Configuration {
                             value = createInstance(prop.getClazz(), prop, mapValue);
                         }
                     } else {
-                        value = source.get(prop.getName());
+                        if (Date.class == prop.getClazz()) {
+                            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+                            DateTime dt = fmt.parseDateTime((String) source.get(prop.getName()));
+                            value = dt.toDate();
+                        } else {
+                            value = source.get(prop.getName());
+                        }
                     }
                     Method setter = metadata.getSetter(prop.getField());
                     setter.invoke(instance, value);
