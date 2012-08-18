@@ -32,17 +32,22 @@ public class NodeClientOsemSessionFactoryBean extends AbstractOsemSessionFactory
     // See
     // http://elasticsearch-users.115913.n3.nabble.com/node-client-true-vs-node-data-false-td968859.html
     private boolean clientNode;
+    private boolean local;
     private Node node;
 
     public void setClientNode(boolean clientNode) {
         this.clientNode = clientNode;
     }
 
+    public void setLocal(boolean local) {
+        this.local = local;
+    }
+
     @Override
     public void initEsConfig() throws Exception {
         Builder settings = buildConfiguredPropertySettings();
         settings.put("node.client", clientNode);
-        node = NodeBuilder.nodeBuilder().client(clientNode).settings(settings.build()).node().start();
+        node = NodeBuilder.nodeBuilder().client(clientNode).local(local).settings(settings.build()).node().start();
         client = node.client();
     }
 

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<bean id="nodeEsSessionFactory" class="org.kwince.osem.es.NodeClientOsemSessionFactoryBean">
-		<property name="indexName" value="mydb" />
-        <property name="packagesToScan" value="org.kwince.osem.es.model" />
-	</bean>
+  <bean id="nodeEsSessionFactory" class="org.kwince.osem.es.NodeClientOsemSessionFactoryBean">
+    <property name="indexName" value="mydb" />
+    <property name="packagesToScan" value="org.kwince.osem.es.model" />
+    <!-- Use the Client in unit/integration tests. See http://www.elasticsearch.org/guide/reference/java-api/client.html -->
+    <property name="local" value="true" />
+  </bean>
 
 </beans>
