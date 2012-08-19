@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <bean id="nodeEsSessionFactory" class="org.kwince.osem.es.NodeClientOsemSessionFactoryBean">
+    <property name="indexName" value="mydb" />
+    <property name="packagesToScan" value="org.kwince.osem.es.model" />
+  </bean>
+
+  <bean id="transportEsFactory"
+    class="org.kwince.osem.es.TransportClientOsemManagerFactoryBean">
+    <property name="indexName" value="mydb" />
+    <property name="packagesToScan" value="org.kwince.osem.es.model" />
+    <property name="hosts">
+      <list>
+        <value>localhost:9300</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>

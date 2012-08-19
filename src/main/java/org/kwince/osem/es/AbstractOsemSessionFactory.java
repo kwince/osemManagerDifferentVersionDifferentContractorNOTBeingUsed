@@ -24,14 +24,14 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
 
     protected ThreadLocal<OsemSession> threadLocal = new ThreadLocal<OsemSession>();
 
-    private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-
-    private TypeFilter documentTypeFilter = new AnnotationTypeFilter(Document.class, false);
-
     /**
      * Required indexName. In ES, indices are table equivalent in RDBMS system
      */
-    private String indexName;
+    protected String indexName;
+
+    private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+
+    private TypeFilter documentTypeFilter = new AnnotationTypeFilter(Document.class, false);
 
     private Configuration config;
 

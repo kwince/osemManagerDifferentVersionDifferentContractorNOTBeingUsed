@@ -2,6 +2,9 @@ package org.kwince.osem.es;
 
 import java.util.List;
 
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.exists.IndicesExistsRequest;
+import org.elasticsearch.action.admin.indices.exists.IndicesExistsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings.Builder;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.FactoryBean;
  *  <bean id="esFactory"
  *    class="org.kwince.osem.es.TransportClientOsemManagerFactoryBean">
  *    <property name="indexName" value="mydb" />
+ *    <property name="packagesToScan" value="org.kwince.osem.es.model" />
  *    <property name="hosts">
  *      <list>
  *        <value>localhost:9300</value>
@@ -54,6 +58,10 @@ public class TransportClientOsemManagerFactoryBean extends AbstractOsemSessionFa
         client = new TransportClient(settings);
         for (String host : hosts) {
             ((TransportClient) client).addTransportAddress(toAddress(host));
+        }
+        IndicesExistsResponse existResponse = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
+        if (!existResponse.exists()) {
+            client.admin().indices().create(new CreateIndexRequest(indexName)).actionGet();
         }
     }
 
