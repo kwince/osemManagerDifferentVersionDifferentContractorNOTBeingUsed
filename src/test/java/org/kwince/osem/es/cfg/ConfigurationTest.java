@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.elasticsearch.common.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -45,7 +46,6 @@ public class ConfigurationTest {
     }
 
     @Test
-    @Ignore
     public void createObjectTest() {
         // Case 1: Empty source map
         Map<String, Object> source = new HashMap<String, Object>();
@@ -58,8 +58,9 @@ public class ConfigurationTest {
         // Case 2: No alias map, null password and middle_name
         source.put("user_name", "aramirez");
         source.put("password", null);
-        Date birthdate = new Date();
-        source.put("birthdate", birthdate);
+        DateTime now = DateTime.now();
+        Date birthdate = now.toDate();
+        source.put("birthdate", now.toString());
         Map<String, Object> nameMap = new HashMap<String, Object>();
         nameMap.put("first_name", "Allan");
         nameMap.put("last_name", "Ramirez");

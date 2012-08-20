@@ -185,9 +185,12 @@ public class Configuration {
                         }
                     } else {
                         if (Date.class == prop.getClazz()) {
-                            DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
-                            DateTime dt = fmt.parseDateTime((String) source.get(prop.getName()));
-                            value = dt.toDate();
+                            String strDate = (String) source.get(prop.getName());
+                            if (StringUtils.isNotBlank(strDate)) {
+                                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+                                DateTime dt = fmt.parseDateTime(strDate);
+                                value = dt.toDate();
+                            }
                         } else {
                             value = source.get(prop.getName());
                         }
