@@ -14,7 +14,6 @@ public class User {
     @Property(name = "user_name")
     private String username;
     private String password;
-    @ObjectProperty
     private Name name;
     @ObjectProperty(name = "name_alias")
     private Name alias;
