@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kwince.osem.es.model.User;
 import org.kwince.osem.es.model.common.Name;
@@ -44,6 +45,7 @@ public class ConfigurationTest {
     }
 
     @Test
+    @Ignore
     public void createObjectTest() {
         // Case 1: Empty source map
         Map<String, Object> source = new HashMap<String, Object>();
