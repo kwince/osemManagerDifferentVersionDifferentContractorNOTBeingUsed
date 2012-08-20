@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.elasticsearch.common.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kwince.osem.es.model.User;
 import org.kwince.osem.es.model.common.Name;
