@@ -16,7 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
 public abstract class AbstractOsemSessionFactoryBean extends AbstractOsemSessionFactory implements FactoryBean<OsemSessionFactory>,
         InitializingBean, DisposableBean {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    protected String settingsLocation = "es_settings.properties";
+    protected String settingsLocation = "META-INF/es_settings.properties";
     protected Client client;
 
     public void setSettingsLocation(String settingsLocation) {
