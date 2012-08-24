@@ -20,7 +20,4 @@ public class MetadataException extends Exception {
         super(message);
     }
 
-    public MetadataException(String message, Throwable e) {
-        super(message, e);
-    }
 }

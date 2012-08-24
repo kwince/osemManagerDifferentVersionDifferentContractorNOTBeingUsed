@@ -19,7 +19,4 @@ public class ModificationException extends Exception {
         super(message);
     }
 
-    public ModificationException(String message, Throwable e) {
-        super(message, e);
-    }
 }

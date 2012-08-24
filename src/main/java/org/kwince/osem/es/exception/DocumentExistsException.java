@@ -11,7 +11,4 @@ public class DocumentExistsException extends Exception {
         super(message);
     }
 
-    public DocumentExistsException(String message, Throwable e) {
-        super(message, e);
-    }
 }

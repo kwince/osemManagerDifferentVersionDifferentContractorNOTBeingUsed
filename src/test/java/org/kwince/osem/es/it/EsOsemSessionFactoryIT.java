@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.OsemSessionFactory;
+import org.kwince.osem.es.exception.DocumentExistsException;
 import org.kwince.osem.es.model.NoDocumentAnnotation;
 import org.kwince.osem.es.model.Person;
 import org.kwince.osem.es.model.User;
@@ -182,6 +183,18 @@ public class EsOsemSessionFactoryIT {
         } catch (Exception e) {
             // Expected
             assertEquals(NoDocumentAnnotation.class + " is not a document.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void saveExistingDocumentTest() throws Exception {
+        saveUser("1");
+
+        try {
+            saveUser("1");
+            fail("Should throw DocumentExistsException");
+        } catch (DocumentExistsException e) {
+            // Expected
         }
     }
 

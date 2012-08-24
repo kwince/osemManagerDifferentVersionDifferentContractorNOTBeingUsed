@@ -13,22 +13,38 @@ public abstract class AbstractOsemSessionFactoryBean extends AbstractOsemSession
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     protected Client client;
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.FactoryBean#getObject()
+     */
     public OsemSessionFactory getObject() throws Exception {
         return this;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.FactoryBean#getObjectType()
+     */
     public Class<?> getObjectType() {
         return OsemSessionFactory.class;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.FactoryBean#isSingleton()
+     */
     public boolean isSingleton() {
         return true;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     */
     public void destroy() throws Exception {
         if (client != null) {
             try {
@@ -39,6 +55,11 @@ public abstract class AbstractOsemSessionFactoryBean extends AbstractOsemSession
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.kwince.osem.es.EsOsemSessionFactory#getClient()
+     */
     public final Client getClient() {
         return client;
     }
