@@ -1,4 +1,4 @@
-package org.kwince.osem.es;
+package org.kwince.osem.es.it;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -6,31 +6,23 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.OsemSessionFactory;
 import org.kwince.osem.es.valid.model.NoDocumentAnnotation;
 import org.kwince.osem.es.valid.model.Person;
 import org.kwince.osem.es.valid.model.User;
 import org.kwince.osem.es.valid.model.common.Name;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Tests all CRUD operations performed on an Elastic Search Client (Node Client)
@@ -43,28 +35,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Allan Ramirez (ramirezag@gmail.com)
  * 
  */
-public class EsOsemSessionFactoryTest {
-    private static final String ES_DEFAULT_DATA_PATH = "data";
-    private static Logger log = LoggerFactory.getLogger(EsOsemSessionFactoryTest.class);
-    private static ClassPathXmlApplicationContext context;
-    private static OsemSessionFactory sessionFactory;
-    private static File esDataPath;
-
-    @BeforeClass
-    public static void setup() {
-        context = new ClassPathXmlApplicationContext("applicationContext.xml");
-        sessionFactory = context.getBean("nodeEsSessionFactory", OsemSessionFactory.class);
-        try {
-            esDataPath = getEsDataPath();
-        } catch (Exception e) {
-            log.error("Error getting es data path", e);
-        }
-    }
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:/applicationContext.xml", loader = EsContextLoader.class)
+public class EsOsemSessionFactoryIT {
+    @Autowired
+    private OsemSessionFactory sessionFactory;
 
     @Test
     public void performCrud1Test() throws Exception {
         OsemSession session = sessionFactory.getCurrentSession();
-
         String id1 = "aramirez";
 
         User user = saveUser(id1);
@@ -219,29 +198,6 @@ public class EsOsemSessionFactoryTest {
         session.save(user);
 
         return user;
-    }
-
-    @AfterClass
-    public static void cleanup() throws Exception {
-        context.close();
-        try {
-            FileUtils.deleteDirectory(esDataPath);
-        } catch (IOException e) {
-            log.error("Failed to delete node client data.path directory", e);
-        }
-    }
-
-    public static File getEsDataPath() throws Exception {
-        InputStream is = null;
-        try {
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream("es_settings.properties");
-            Properties props = new Properties();
-            props.load(is);
-            String path = props.getProperty("path.data");
-            return StringUtils.isNotBlank(path) ? new File(path) : new File(ES_DEFAULT_DATA_PATH);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
     }
 
 }

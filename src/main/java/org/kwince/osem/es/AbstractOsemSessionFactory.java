@@ -60,6 +60,10 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
     public void setSettingsLocation(String settingsLocation) {
         this.settingsLocation = settingsLocation;
     }
+    
+    public String getSettingsLocation() {
+        return settingsLocation;
+    }
 
     /*
      * (non-Javadoc)

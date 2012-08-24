@@ -60,4 +60,13 @@ public interface EsOsemSessionFactory extends OsemSessionFactory {
      *            Defaults to META-INF/es_settings.properties
      */
     void setSettingsLocation(String settingsLocation);
+
+    /**
+     * Location of property file that contains common properties for an Elastic
+     * Search Client.
+     * 
+     * @return string location of the property file. Defaults to
+     *         META-INF/es_settings.properties if not set explicitly
+     */
+    String getSettingsLocation();
 }

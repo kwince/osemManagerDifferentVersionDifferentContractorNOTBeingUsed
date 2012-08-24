@@ -1,8 +1,8 @@
 package org.kwince.osem.es.valid.model;
 
-import org.kwince.osem.es.EsOsemSessionFactoryTest;
 import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.Property;
+import org.kwince.osem.es.it.EsOsemSessionFactoryIT;
 
 /**
  * Test class that has no &#064;Document annotation which means that this is not
@@ -10,7 +10,7 @@ import org.kwince.osem.es.annotation.Property;
  * session.save, an exception should be thrown.
  * 
  * @author Allan Ramirez (ramirezag@gmail.com)
- * @see EsOsemSessionFactoryTest#performCrudOnNoDocumentAnnotationClass
+ * @see EsOsemSessionFactoryIT#performCrudOnNoDocumentAnnotationClass
  * 
  */
 public class NoDocumentAnnotation {
