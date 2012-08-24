@@ -9,10 +9,6 @@ import org.kwince.osem.es.exception.DocumentExistsException;
  * Interface used to interact with search or document stores to perform CRUD
  * operations to entities or documents.
  * 
- * <p>
- * This interface is inspired from {@link javax.persistence.documentManager} in
- * fact almost all methods here are copied from documentManager interface
- * 
  * @author Allan Ramirez (ramirezag@gmail.com)
  * 
  */

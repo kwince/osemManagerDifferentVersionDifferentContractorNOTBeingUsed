@@ -3,6 +3,7 @@ package org.kwince.osem.es;
 import org.elasticsearch.client.Client;
 import org.kwince.osem.OsemSessionFactory;
 import org.kwince.osem.es.cfg.Configuration;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 
 /**
  * Interface for elastic search session management.
@@ -44,8 +45,7 @@ public interface EsOsemSessionFactory extends OsemSessionFactory {
     /**
      * Specify packages to search for autodetection of your document classes in
      * the classpath. This is analogous to Spring's component-scan feature (
-     * {@link org.springframework.context.annotation.ClassPathBeanDefinitionScanner}
-     * ).
+     * {@link ClassPathBeanDefinitionScanner} ).
      * 
      * @param packagesToScan
      */
