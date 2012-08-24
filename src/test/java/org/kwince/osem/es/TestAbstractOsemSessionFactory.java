@@ -29,7 +29,7 @@ public class TestAbstractOsemSessionFactory {
         };
         // Set properties
         sessionFactory.setIndexName(indexName);
-        sessionFactory.setPackagesToScan(new String[] { "org.kwince.osem.es.valid.model" });
+        sessionFactory.setPackagesToScan(new String[] { "org.kwince.osem.**.model" });
         // After properties set
         sessionFactory.afterPropertiesSet();
 
