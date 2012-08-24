@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * * Specifies the id property in Elastic Search
- * (http://localhost:9300/twitter/tweet/{id}).
+ * (http://localhost:9300/twitter/{indexName}/{id}).
  * 
  * <blockquote>
  * 

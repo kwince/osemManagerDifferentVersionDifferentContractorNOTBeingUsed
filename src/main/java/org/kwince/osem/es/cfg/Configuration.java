@@ -1,5 +1,6 @@
 package org.kwince.osem.es.cfg;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -9,10 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.kwince.osem.es.annotation.Document;
 import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.ObjectProperty;
@@ -28,9 +32,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
 /**
+ * An instance of <tt>Configuration</tt> allows the application to specify
+ * builder properties and mapping documents to be used when creating a
+ * <tt>EsOsemSessionFactory</tt>. <tt>EsOsemSessionFactory</tt> has a single
+ * instance of this. OsemSession instantiated from EsOsemSessionFactory heavily
+ * relies on the mapping documents that this configuration holds when servising
+ * client requests.
+ * <p>
+ * This class is immutable in the sense that once initialized, a
+ * {@link ModificationException} is thrown when a candidate Class is added to
+ * this configuration ( {@link Configuration#addAnnotatedClass(Class)}) or
+ * {@link Configuration#build()} is called again.
  * 
  * @author Allan Ramirez (ramirezag@gmail.com)
- * 
+ * @see org.kwince.osem.es.EsOsemSessionFactory
  */
 public class Configuration {
     private static Logger log = LoggerFactory.getLogger(Configuration.class);
@@ -40,9 +55,19 @@ public class Configuration {
         // http://www.eclemma.org/jacoco/trunk/coverage/org.jacoco.core/org.jacoco.core.internal.instr/InstrSupport.java.html#DATAFIELD_NAME
         codeCoverageFieldNames.add("$jacocoData");
     }
+    private String settingsLocation;
+    private Builder builder;
     private boolean initialized;
     private List<Class<?>> documentClasses = new ArrayList<Class<?>>();
     private Map<Class<?>, DocumentMetadata> documents = new HashMap<Class<?>, DocumentMetadata>();
+
+    public void setSettingsLocation(String settingsLocation) {
+        this.settingsLocation = settingsLocation;
+    }
+
+    public Builder getSettingsBuilder() {
+        return builder;
+    }
 
     public void addAnnotatedClass(Class<?> clazz) throws ModificationException {
         if (initialized) {
@@ -83,7 +108,6 @@ public class Configuration {
 
             DocumentMetadata document = new DocumentMetadata(clazz);
             document.setName(documentName);
-            documentMap.put(documentName, document);
             for (Field field : clazz.getDeclaredFields()) {
                 // Aside from fields with @Transient, Arrays and Collections are
                 // excluded for now
@@ -140,10 +164,27 @@ public class Configuration {
                     document.addProperty(pmd);
                 }
             }
+            if (document.getIdField() == null) {
+                throw new MappingException(String.format("%s has no annotated ID", clazz));
+            }
+            documentMap.put(documentName, document);
         }
 
         for (DocumentMetadata document : documentMap.values()) {
             documents.put(document.getClazz(), document);
+        }
+
+        InputStream is = null;
+        try {
+            builder = ImmutableSettings.settingsBuilder();
+            if (StringUtils.isNotBlank(settingsLocation)) {
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(settingsLocation);
+                if (is != null) {
+                    builder = builder.loadFromStream(settingsLocation, is);
+                }
+            }
+        } finally {
+            IOUtils.closeQuietly(is);
         }
     }
 

@@ -16,10 +16,15 @@ package org.kwince.osem;
  */
 public interface OsemSessionFactory {
     /**
+     * Get the current osem session associated with the current thread. If no
+     * session is available, new osem session is created.
      * 
-     * @return
+     * @return osem session
      */
     OsemSession getCurrentSession();
 
+    /**
+     * Remove the osem session object associated with the current thread
+     */
     void removeCurrentSession();
 }

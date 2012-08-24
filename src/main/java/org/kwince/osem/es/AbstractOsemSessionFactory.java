@@ -2,6 +2,7 @@ package org.kwince.osem.es;
 
 import java.io.IOException;
 
+import org.elasticsearch.client.Client;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.es.annotation.Document;
 import org.kwince.osem.es.cfg.Configuration;
@@ -21,13 +22,15 @@ import org.springframework.util.ClassUtils;
 
 public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory, InitializingBean {
     private static final String RESOURCE_PATTERN = "/**/*.class";
-
+    private static final String DEFAULT_ES_PROPERTY_LOCATION = "META-INF/es_settings.properties";
     protected ThreadLocal<OsemSession> threadLocal = new ThreadLocal<OsemSession>();
 
     /**
      * Required indexName. In ES, indices are table equivalent in RDBMS system
      */
     protected String indexName;
+
+    private String settingsLocation = DEFAULT_ES_PROPERTY_LOCATION;
 
     private ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
@@ -37,29 +40,67 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
 
     private String[] packagesToScan;
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.kwince.osem.es.EsOsemSessionFactory#setIndexName(java.lang.String)
+     */
     public void setIndexName(String indexName) {
         this.indexName = indexName;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.kwince.osem.es.EsOsemSessionFactory#setSettingsLocation(java.lang
+     * .String)
+     */
+    public void setSettingsLocation(String settingsLocation) {
+        this.settingsLocation = settingsLocation;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.kwince.osem.es.EsOsemSessionFactory#setPackagesToScan(java.lang.String
+     * [])
+     */
     public void setPackagesToScan(String[] packagesToScan) {
         this.packagesToScan = packagesToScan;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.kwince.osem.es.EsOsemSessionFactory#getConfiguration()
+     */
     public Configuration getConfiguration() {
         return config;
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     */
     public void afterPropertiesSet() throws Exception {
         Assert.hasLength(indexName);
         config = new Configuration();
+        config.setSettingsLocation(settingsLocation);
         scanPackages(config);
         getConfiguration().build();
         initEsConfig();
     }
 
-    @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.kwince.osem.OsemSessionFactory#getCurrentSession()
+     */
     public OsemSession getCurrentSession() {
         OsemSession session = threadLocal.get();
         if (session == null) {
@@ -69,6 +110,11 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
         return session;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.kwince.osem.OsemSessionFactory#removeCurrentSession()
+     */
     public void removeCurrentSession() {
         threadLocal.remove();
     }
@@ -101,6 +147,13 @@ public abstract class AbstractOsemSessionFactory implements EsOsemSessionFactory
         }
     }
 
+    /**
+     * Additional configuration that subclasses wants to perform after
+     * {@link Configuration} is completely initialized. This is the perfect
+     * place for initializing {@link Client} type that subclasses want's to use.
+     * 
+     * @throws Exception
+     */
     protected abstract void initEsConfig() throws Exception;
 
 }

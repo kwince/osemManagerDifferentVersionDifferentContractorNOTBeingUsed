@@ -49,7 +49,7 @@ public class NodeClientOsemSessionFactoryBean extends AbstractOsemSessionFactory
 
     @Override
     public void initEsConfig() throws Exception {
-        Builder settings = buildConfiguredPropertySettings();
+        Builder settings = getConfiguration().getSettingsBuilder();
         settings.put("node.client", clientNode);
         node = NodeBuilder.nodeBuilder().client(clientNode).local(local).settings(settings.build()).node().start();
         client = node.client();

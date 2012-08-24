@@ -63,7 +63,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public <T> int count(Class<T> documentClass) {
         if (!config.isDocument(documentClass)) {
-            throw new MappingException(String.format("%s is not an document.", documentClass));
+            throw new MappingException(String.format("%s is not a document.", documentClass));
         }
         log.info("Fetching {} total records.", getType(documentClass));
         CountResponse count = client.prepareCount(indexName).setTypes(getType(documentClass)).execute().actionGet();
@@ -78,7 +78,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public <T> void delete(Class<T> documentClass, Serializable id) {
         if (!config.isDocument(documentClass)) {
-            throw new MappingException(String.format("%s is not an document.", documentClass));
+            throw new MappingException(String.format("%s is not a document.", documentClass));
         }
         log.info("Deleting record in {} type with id {}", getType(documentClass), id);
         client.prepareDelete(indexName, getType(documentClass), id.toString()).setRefresh(true).execute().actionGet();
@@ -91,7 +91,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public void deleteAll(Class<?> documentClass) {
         if (!config.isDocument(documentClass)) {
-            throw new MappingException(String.format("%s is not an document.", documentClass));
+            throw new MappingException(String.format("%s is not a document.", documentClass));
         }
         log.info("Deleting all records in {} type", getType(documentClass));
         client.prepareDeleteByQuery(indexName).setTypes(getType(documentClass)).setQuery(QueryBuilders.matchAllQuery()).execute()
@@ -106,7 +106,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public <T> T find(Class<T> documentClass, Serializable primaryKey) {
         if (!config.isDocument(documentClass)) {
-            throw new MappingException(String.format("%s is not an document.", documentClass));
+            throw new MappingException(String.format("%s is not a document.", documentClass));
         }
         log.info("Getting record in {} with id {}", getType(documentClass), primaryKey);
         GetResponse response = client.prepareGet(indexName, getType(documentClass), primaryKey.toString()).execute().actionGet();
@@ -125,7 +125,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public <T> List<T> findAll(Class<T> documentClass) {
         if (!config.isDocument(documentClass)) {
-            throw new MappingException(String.format("%s is not an document.", documentClass));
+            throw new MappingException(String.format("%s is not a document.", documentClass));
         }
         SearchResponse response = client.prepareSearch(indexName).setTypes(getType(documentClass)).execute().actionGet();
         List<T> results = new ArrayList<T>();
@@ -188,7 +188,7 @@ public class OsemSessionImpl implements OsemSession {
      */
     public void saveOrUpdate(Object document) {
         if (!config.isDocument(document)) {
-            throw new MappingException(String.format("%s is not an document.", document.getClass()));
+            throw new MappingException(String.format("%s is not a document.", document.getClass()));
         }
         String id = getIdValue(document);
         String type = getType(document.getClass());

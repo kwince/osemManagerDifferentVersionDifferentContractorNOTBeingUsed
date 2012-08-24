@@ -6,6 +6,7 @@ import org.kwince.osem.es.annotation.Document;
 import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.ObjectProperty;
 import org.kwince.osem.es.annotation.Property;
+import org.kwince.osem.es.annotation.Transient;
 import org.kwince.osem.es.model.common.Name;
 
 @Document(name = "user_doc")
@@ -18,6 +19,8 @@ public class User {
     @ObjectProperty(name = "name_alias")
     private Name alias;
     private Date birthdate;
+    @Transient
+    private String sessionId;
 
     public String getUsername() {
         return username;
@@ -57,6 +60,14 @@ public class User {
 
     public void setBirthdate(Date birthdate) {
         this.birthdate = birthdate;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     @Override

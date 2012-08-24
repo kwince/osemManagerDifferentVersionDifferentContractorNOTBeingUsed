@@ -10,6 +10,27 @@ import java.util.Map;
 
 import org.kwince.osem.exception.MetadataException;
 
+/**
+ * Represents and holds information about a property in a document.
+ * <p>
+ * Eg. <br>
+ * <code>
+ * &#064;Document
+ * public class TestClass {
+ * ...
+ *  &#064;Property
+ *  private String property1;
+ *  
+ *  public void setProperty1(String property1)...
+ *  public String getProperty1()...
+ * }
+ * </code> <br>
+ * In the above example, an instance of PropertyMetadata will be created that
+ * represents property1 field or property
+ * 
+ * @author Allan Ramirez (ramirezag@gmail.com)
+ * 
+ */
 public class PropertyMetadata {
     private Field field;
     private List<PropertyMetadata> properties;
@@ -17,19 +38,31 @@ public class PropertyMetadata {
     private Class<?> clazz;
     private String name;
 
-    public PropertyMetadata() {
-    }
-
+    /**
+     * Set the {@link Field} object
+     * 
+     * @param field
+     */
     public void setField(Field field) {
         this.field = field;
         setClazz(field.getType());
         updateMethodMap();
     }
 
+    /**
+     * Set the {@link Field} object
+     * 
+     * @return field
+     */
     public Field getField() {
         return field;
     }
 
+    /**
+     * Get the list of property metadata of this property.
+     * 
+     * @return list of property metadata of this property
+     */
     public List<PropertyMetadata> getProperties() {
         return properties != null ? Collections.unmodifiableList(properties) : null;
     }
@@ -44,6 +77,12 @@ public class PropertyMetadata {
         properties.add(property);
     }
 
+    /**
+     * Get the class of this property. This could be primitive or user defined
+     * classes.
+     * 
+     * @return class
+     */
     public Class<?> getClazz() {
         return clazz;
     }

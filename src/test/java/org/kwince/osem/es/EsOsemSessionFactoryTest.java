@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.OsemSessionFactory;
+import org.kwince.osem.es.model.NoDocumentAnnotation;
 import org.kwince.osem.es.model.Person;
 import org.kwince.osem.es.model.User;
 import org.kwince.osem.es.model.common.Name;
@@ -152,6 +154,7 @@ public class EsOsemSessionFactoryTest {
 
         Serializable id1 = session.save(person1);
         Serializable id2 = session.save(person2);
+
         // Generated from elastic search
         assertNotNull(id1);
         assertNotNull(id2);
@@ -166,6 +169,41 @@ public class EsOsemSessionFactoryTest {
 
         list = session.findAll(Person.class, jsonQuery);
         assertEquals(0, list.size());
+    }
+
+    @Test
+    public void performCrudOnNoDocumentAnnotationClass() {
+        OsemSession session = sessionFactory.getCurrentSession();
+        NoDocumentAnnotation object = new NoDocumentAnnotation();
+        object.setProperty1("value1");
+        object.setProperty2("value2");
+
+        // Case 1: Test save
+        try {
+            session.save(object);
+            fail("Should throw exception because " + NoDocumentAnnotation.class.getName() + " is not annotated with @Document.");
+        } catch (Exception e) {
+            // Expected
+            assertEquals(NoDocumentAnnotation.class + " is not a document.", e.getMessage());
+        }
+
+        // Case 2: Test find all
+        try {
+            session.findAll(NoDocumentAnnotation.class);
+            fail("Should throw exception because " + NoDocumentAnnotation.class.getName() + " is not annotated with @Document.");
+        } catch (Exception e) {
+            // Expected
+            assertEquals(NoDocumentAnnotation.class + " is not a document.", e.getMessage());
+        }
+
+        // Case 3: Test delete all
+        try {
+            session.deleteAll(NoDocumentAnnotation.class);
+            fail("Should throw exception because " + NoDocumentAnnotation.class.getName() + " is not annotated with @Document.");
+        } catch (Exception e) {
+            // Expected
+            assertEquals(NoDocumentAnnotation.class + " is not a document.", e.getMessage());
+        }
     }
 
     private User saveUser(String username) throws Exception {

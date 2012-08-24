@@ -1,11 +1,6 @@
 package org.kwince.osem.es;
 
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.kwince.osem.OsemSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +11,7 @@ import org.springframework.beans.factory.InitializingBean;
 public abstract class AbstractOsemSessionFactoryBean extends AbstractOsemSessionFactory implements FactoryBean<OsemSessionFactory>,
         InitializingBean, DisposableBean {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    protected String settingsLocation = "META-INF/es_settings.properties";
     protected Client client;
-
-    public void setSettingsLocation(String settingsLocation) {
-        this.settingsLocation = settingsLocation;
-    }
 
     @Override
     public OsemSessionFactory getObject() throws Exception {
@@ -53,17 +43,4 @@ public abstract class AbstractOsemSessionFactoryBean extends AbstractOsemSession
         return client;
     }
 
-    protected Builder buildConfiguredPropertySettings() {
-        InputStream is = null;
-        try {
-            Builder result = ImmutableSettings.settingsBuilder();
-            is = Thread.currentThread().getContextClassLoader().getResourceAsStream(settingsLocation);
-            if (is != null) {
-                result = result.loadFromStream(settingsLocation, is);
-            }
-            return result;
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-    }
 }

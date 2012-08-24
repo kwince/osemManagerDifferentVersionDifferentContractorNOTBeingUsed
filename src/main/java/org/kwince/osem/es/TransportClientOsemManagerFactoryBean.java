@@ -52,7 +52,7 @@ public class TransportClientOsemManagerFactoryBean extends AbstractOsemSessionFa
 
     @Override
     public void initEsConfig() throws Exception {
-        Builder settings = buildConfiguredPropertySettings();
+        Builder settings = getConfiguration().getSettingsBuilder();
         settings.put("client.transport.sniff", sniff);
         settings.build();
         client = new TransportClient(settings);

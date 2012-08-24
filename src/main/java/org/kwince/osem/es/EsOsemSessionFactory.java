@@ -24,9 +24,40 @@ public interface EsOsemSessionFactory extends OsemSessionFactory {
     Configuration getConfiguration();
 
     /**
-     * Elastic Search {@link Client} managed by this factory.
+     * Elastic Search {@link Client} managed by this factory. A client provides
+     * a one stop interface for performing actions/operations against the
+     * cluster.
      * 
-     * @return
+     * @return elastic search client.
+     * @see Client
      */
     Client getClient();
+
+    /**
+     * Required index name to index. In ES, indices are database equivalent in
+     * RDBMS system.
+     * 
+     * @param indexName
+     */
+    void setIndexName(String indexName);
+
+    /**
+     * Specify packages to search for autodetection of your document classes in
+     * the classpath. This is analogous to Spring's component-scan feature (
+     * {@link org.springframework.context.annotation.ClassPathBeanDefinitionScanner}
+     * ).
+     * 
+     * @param packagesToScan
+     */
+    void setPackagesToScan(String[] packagesToScan);
+
+    /**
+     * Set location of the property file that contains common properties that
+     * could be used in both Node Client and Transport Client. Eg. cluster.name,
+     * index.number_of_shards etc.
+     * 
+     * @param settingsLocation
+     *            Defaults to META-INF/es_settings.properties
+     */
+    void setSettingsLocation(String settingsLocation);
 }
