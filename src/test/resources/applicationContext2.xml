@@ -6,13 +6,13 @@
 
   <bean id="nodeEsSessionFactory" class="org.kwince.osem.es.NodeClientOsemSessionFactoryBean">
     <property name="indexName" value="mydb" />
-    <property name="packagesToScan" value="org.kwince.osem.es.model" />
+    <property name="packagesToScan" value="org.kwince.osem.es.valid.model" />
   </bean>
 
   <bean id="transportEsFactory"
     class="org.kwince.osem.es.TransportClientOsemManagerFactoryBean">
     <property name="indexName" value="mydb" />
-    <property name="packagesToScan" value="org.kwince.osem.es.model" />
+    <property name="packagesToScan" value="org.kwince.osem.es.valid.model" />
     <property name="hosts">
       <list>
         <value>localhost:9300</value>

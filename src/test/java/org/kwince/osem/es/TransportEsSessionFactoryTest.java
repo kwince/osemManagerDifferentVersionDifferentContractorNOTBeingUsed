@@ -19,7 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.OsemSessionFactory;
-import org.kwince.osem.es.model.Person;
+import org.kwince.osem.es.valid.model.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
