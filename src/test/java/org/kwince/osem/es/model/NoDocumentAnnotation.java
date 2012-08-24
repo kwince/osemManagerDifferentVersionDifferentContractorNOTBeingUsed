@@ -1,4 +1,4 @@
-package org.kwince.osem.es.valid.model;
+package org.kwince.osem.es.model;
 
 import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.Property;

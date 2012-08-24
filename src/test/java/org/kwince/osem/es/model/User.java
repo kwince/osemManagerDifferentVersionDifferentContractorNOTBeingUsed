@@ -1,4 +1,4 @@
-package org.kwince.osem.es.valid.model;
+package org.kwince.osem.es.model;
 
 import java.util.Date;
 
@@ -7,7 +7,7 @@ import org.kwince.osem.es.annotation.Id;
 import org.kwince.osem.es.annotation.ObjectProperty;
 import org.kwince.osem.es.annotation.Property;
 import org.kwince.osem.es.annotation.Transient;
-import org.kwince.osem.es.valid.model.common.Name;
+import org.kwince.osem.es.model.common.Name;
 
 @Document(name = "user_doc")
 public class User {
