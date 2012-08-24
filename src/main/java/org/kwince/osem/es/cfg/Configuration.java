@@ -29,6 +29,7 @@ import org.kwince.osem.exception.MetadataException;
 import org.kwince.osem.exception.ModificationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -73,6 +74,7 @@ public class Configuration {
         if (initialized) {
             throw new ModificationException(String.format("%s is already initialized", getClass().getSimpleName()));
         }
+        Assert.isTrue(clazz.getAnnotation(Document.class) != null);
         documentClasses.add(clazz);
     }
 
@@ -113,7 +115,6 @@ public class Configuration {
                 // excluded for now
                 if (field.getAnnotation(Transient.class) == null && !field.getType().isArray()
                         && !Collection.class.isAssignableFrom(field.getType())) {
-
                     Id id = field.getAnnotation(Id.class);
                     if (id != null) {
                         if (document.getIdField() != null) {
@@ -266,7 +267,7 @@ public class Configuration {
         return documents.get(clazz);
     }
 
-    private boolean isNotObjectProperty(Class<?> clazz) {
+    protected boolean isNotObjectProperty(Class<?> clazz) {
         return ClassUtils.isPrimitiveOrWrapper(clazz) || String.class == clazz || Date.class == clazz;
     }
 

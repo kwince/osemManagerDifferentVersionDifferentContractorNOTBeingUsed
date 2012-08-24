@@ -19,27 +19,21 @@ import java.util.Map;
 
 import org.elasticsearch.common.joda.time.DateTime;
 import org.elasticsearch.common.settings.ImmutableSettings.Builder;
-import org.junit.Before;
 import org.junit.Test;
+import org.kwince.osem.es.annotation.Document;
+import org.kwince.osem.es.annotation.Id;
+import org.kwince.osem.es.annotation.Property;
 import org.kwince.osem.es.model.Person;
 import org.kwince.osem.es.model.User;
 import org.kwince.osem.es.model.common.Name;
+import org.kwince.osem.exception.MappingException;
 import org.kwince.osem.exception.MetadataException;
 import org.kwince.osem.exception.ModificationException;
 
 public class ConfigurationTest {
-    private Configuration config;
-
-    @Before
-    public void onSetup() throws Exception {
-        config = new Configuration();
-        config.addAnnotatedClass(User.class);
-        config.setSettingsLocation(null);
-        config.build();
-    }
-
     @Test
-    public void testImmutability() {
+    public void testImmutability() throws Exception {
+        Configuration config = initializeConfig(null);
         try {
             config.addAnnotatedClass(Person.class);
             fail("Should throw exception because config is already initialized when build method is called.");
@@ -59,7 +53,7 @@ public class ConfigurationTest {
 
     @Test
     public void testSettingsProperties() throws Exception {
-        String esSettingsProperties = "configurationtest_settings.properties";
+        String settingsLocation = "configurationtest_settings.properties";
         Map<String, String> properties = new HashMap<String, String>();
         properties.put("clustername", "testclustername");
         properties.put("pathdata", "testpathdata");
@@ -71,7 +65,7 @@ public class ConfigurationTest {
         } catch (URISyntaxException e) {
             rootDir = new File(url.getPath());
         }
-        File file = new File(rootDir, esSettingsProperties);
+        File file = new File(rootDir, settingsLocation);
         file.createNewFile();
         file.deleteOnExit();
         BufferedWriter bw = null;
@@ -88,23 +82,22 @@ public class ConfigurationTest {
         }
 
         // Case 1: Test properties in an existing property file
-        Configuration config = new Configuration();
-        config.setSettingsLocation(esSettingsProperties);
-        config.build();
+        Configuration config = initializeConfig(settingsLocation);
         Builder builder = config.getSettingsBuilder();
         assertEquals(properties, builder.internalMap());
 
         // Case 2: Test properties in a non-existing property file
         file.delete();
         config = new Configuration();
-        config.setSettingsLocation(esSettingsProperties);
+        config.setSettingsLocation(settingsLocation);
         config.build();
         builder = config.getSettingsBuilder();
         assertTrue(builder.internalMap().isEmpty());
     }
 
     @Test
-    public void verifyDocuments() {
+    public void testDocumentExistence() throws Exception {
+        Configuration config = initializeConfig(null);
         User user = new User();
         assertTrue(config.isDocument(user));
         assertTrue(config.isDocument(User.class));
@@ -115,12 +108,14 @@ public class ConfigurationTest {
 
     @Test
     public void getIdFieldTest() throws Exception {
+        Configuration config = initializeConfig(null);
         Field field = config.getIdField(User.class);
         assertNotNull(field);
     }
 
     @Test
-    public void createObjectTest() {
+    public void createObjectTest() throws Exception {
+        Configuration config = initializeConfig(null);
         // Case 1: Empty source map
         Map<String, Object> source = new HashMap<String, Object>();
         User user = config.createObject(User.class, source);
@@ -171,7 +166,8 @@ public class ConfigurationTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void createSourceMapTest() {
+    public void createSourceMapTest() throws Exception {
+        Configuration config = initializeConfig(null);
         User user = new User();
         user.setUsername("aramirez");
         user.setName(new Name("Allan", null, "Ramirez"));
@@ -193,4 +189,167 @@ public class ConfigurationTest {
         assertTrue(aliasMap.containsKey("last_name"));
     }
 
+    @Test
+    public void invalidDocumentTest() {
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(NoIdDocument.class);
+            config.build();
+            fail("Should throw MappingException because NoIdDocument has no field annotated with @Id");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MappingException e) {
+            assertEquals(String.format("%s has no annotated ID", NoIdDocument.class), e.getMessage());
+        }
+
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(DuplicateIdDocument.class);
+            config.build();
+            fail("Should throw MappingException because DuplicateIdDocument has 2 field annotated with @Id");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MappingException e) {
+            assertEquals("Only 1 field with @Id is allowed.", e.getMessage());
+        }
+
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(FieldWithNoGetterSetter1.class);
+            config.build();
+            fail("Should throw MetadataException");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            assertEquals("Property id has no setter or getter", e.getMessage());
+        }
+
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(FieldWithNoGetter1.class);
+            config.build();
+            fail("Should throw MetadataException");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            assertEquals("Property id has no setter or getter", e.getMessage());
+        }
+
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(FieldWithNoGetterSetter2.class);
+            config.build();
+            fail("Should throw MetadataException");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            assertEquals("Property field has no setter or getter", e.getMessage());
+        }
+
+        try {
+            Configuration config = new Configuration();
+            config.addAnnotatedClass(FieldWithNoGetterSetter3.class);
+            config.build();
+            fail("Should throw MetadataException");
+        } catch (ModificationException e) {
+            fail("This type of exception should not be thrown");
+        } catch (MetadataException e) {
+            assertEquals("Property field has no setter or getter", e.getMessage());
+        }
+    }
+
+    private Configuration initializeConfig(String settingsLocation) throws Exception {
+        Configuration config = new Configuration();
+        config.addAnnotatedClass(User.class);
+        config.setSettingsLocation(settingsLocation);
+        config.build();
+        return config;
+    }
+
+    @Document
+    private static class NoIdDocument {
+
+    }
+
+    @SuppressWarnings("unused")
+    @Document
+    private static class DuplicateIdDocument {
+        @Id
+        String id1;
+        @Id
+        String id2;
+
+        public String getId1() {
+            return id1;
+        }
+
+        public void setId1(String id1) {
+            this.id1 = id1;
+        }
+
+        public String getId2() {
+            return id2;
+        }
+
+        public void setId2(String id2) {
+            this.id2 = id2;
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    @Document
+    private static class FieldWithNoGetterSetter1 {
+        @Id
+        private String id;
+    }
+
+    @SuppressWarnings("unused")
+    @Document
+    private static class FieldWithNoGetter1 {
+        @Id
+        private String id;
+
+        public void setId(String id) {
+            this.id = id;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @Document
+    private static class FieldWithNoGetterSetter2 {
+        @Id
+        private String id;
+        private String field;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    @Document
+    private static class FieldWithNoGetterSetter3 {
+        @Id
+        private String id;
+        @Property
+        private String field;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+    }
 }
