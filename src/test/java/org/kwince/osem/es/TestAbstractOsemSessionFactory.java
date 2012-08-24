@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import org.elasticsearch.client.Client;
 import org.junit.Test;
 import org.kwince.osem.es.cfg.Configuration;
-import org.kwince.osem.es.valid.model.User;
+import org.kwince.osem.es.model.User;
 
 public class TestAbstractOsemSessionFactory {
     private String indexName = "test_index";

@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.kwince.osem.OsemSession;
 import org.kwince.osem.OsemSessionFactory;
 import org.kwince.osem.es.TransportClientOsemManagerFactoryBean;
-import org.kwince.osem.es.valid.model.Person;
+import org.kwince.osem.es.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;

@@ -1,20 +1,31 @@
 package org.kwince.osem.es.cfg;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.elasticsearch.common.joda.time.DateTime;
+import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.junit.Before;
 import org.junit.Test;
-import org.kwince.osem.es.valid.model.User;
-import org.kwince.osem.es.valid.model.common.Name;
+import org.kwince.osem.es.model.Person;
+import org.kwince.osem.es.model.User;
+import org.kwince.osem.es.model.common.Name;
+import org.kwince.osem.exception.MetadataException;
+import org.kwince.osem.exception.ModificationException;
 
 public class ConfigurationTest {
     private Configuration config;
@@ -23,19 +34,83 @@ public class ConfigurationTest {
     public void onSetup() throws Exception {
         config = new Configuration();
         config.addAnnotatedClass(User.class);
+        config.setSettingsLocation(null);
         config.build();
     }
 
     @Test
-    public void isDocumentTest() {
-        User user = new User();
-        assertTrue(config.isDocument(user));
-        assertTrue(config.isDocument(User.class));
+    public void testImmutability() {
+        try {
+            config.addAnnotatedClass(Person.class);
+            fail("Should throw exception because config is already initialized when build method is called.");
+        } catch (ModificationException e) {
+            assertEquals(String.format("%s is already initialized", Configuration.class.getSimpleName()), e.getMessage());
+        }
+
+        try {
+            config.build();
+            fail("Should throw exception because config is already initialized when build method is called.");
+        } catch (MetadataException e) {
+            fail("This type of exception should not be thrown");
+        } catch (ModificationException e) {
+            assertEquals(String.format("%s is already initialized", Configuration.class.getSimpleName()), e.getMessage());
+        }
     }
 
     @Test
-    public void getDocumentNameTest() {
+    public void testSettingsProperties() throws Exception {
+        String esSettingsProperties = "configurationtest_settings.properties";
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put("clustername", "testclustername");
+        properties.put("pathdata", "testpathdata");
+
+        URL url = Thread.currentThread().getContextClassLoader().getResource(".");
+        File rootDir;
+        try {
+            rootDir = new File(url.toURI());
+        } catch (URISyntaxException e) {
+            rootDir = new File(url.getPath());
+        }
+        File file = new File(rootDir, esSettingsProperties);
+        file.createNewFile();
+        file.deleteOnExit();
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter(new FileWriter(file));
+            for (String key : properties.keySet()) {
+                bw.write(key + "=" + properties.get(key));
+                bw.write("\n");
+            }
+        } finally {
+            if (bw != null) {
+                bw.close();
+            }
+        }
+
+        // Case 1: Test properties in an existing property file
+        Configuration config = new Configuration();
+        config.setSettingsLocation(esSettingsProperties);
+        config.build();
+        Builder builder = config.getSettingsBuilder();
+        assertEquals(properties, builder.internalMap());
+
+        // Case 2: Test properties in a non-existing property file
+        file.delete();
+        config = new Configuration();
+        config.setSettingsLocation(esSettingsProperties);
+        config.build();
+        builder = config.getSettingsBuilder();
+        assertTrue(builder.internalMap().isEmpty());
+    }
+
+    @Test
+    public void verifyDocuments() {
+        User user = new User();
+        assertTrue(config.isDocument(user));
+        assertTrue(config.isDocument(User.class));
+        assertFalse(config.isDocument(Person.class));
         assertEquals("user_doc", config.getDocumentName(User.class));
+        assertNull(config.getDocumentName(Person.class));
     }
 
     @Test
