@@ -10,9 +10,9 @@ import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * An {@link FactoryBean} used to create OsemManagerFactory that uses Node
- * Client instance {@link Node} which is an embedded instance of the cluster
- * within a running application. <br>
+ * A {@link FactoryBean} used to create OsemManagerFactory that uses Node Client
+ * instance {@link Node} which is an embedded instance of the cluster within a
+ * running application. <br>
  * The lifecycle of the underlying {@link Node} instance is tied to the
  * lifecycle of the bean via the {@link #destroy()} method which calls
  * {@link Node#close()} <br>

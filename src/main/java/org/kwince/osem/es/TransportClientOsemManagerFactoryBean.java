@@ -12,7 +12,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * An {@link FactoryBean} used to create OsemManager that uses ElasticSearch
+ * A {@link FactoryBean} used to create OsemManager that uses ElasticSearch
  * Transport {@link Client}. <br>
  * You need to define the host that holds the nodes you want to communicate
  * with.<br>
