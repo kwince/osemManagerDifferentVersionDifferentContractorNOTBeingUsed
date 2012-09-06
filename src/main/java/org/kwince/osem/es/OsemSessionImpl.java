@@ -135,11 +135,13 @@ public class OsemSessionImpl implements OsemSession {
         return results;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Search all documents of the specified class that matches the query. See
+     * {@link http://www.elasticsearch.org/guide/reference/query-dsl} for proper construction of json query.
      * 
-     * @see org.kwince.osem.OsemSession#findAll(java.lang.Class,
-     * java.lang.String)
+     * @param documentClass
+     * @param query valid jsonquery for elastic search
+     * @return list of all entities or documents
      */
     public <T> List<T> findAll(Class<T> documentClass, String jsonQuery) {
         WrapperQueryBuilder wrapper = QueryBuilders.wrapperQuery(jsonQuery);

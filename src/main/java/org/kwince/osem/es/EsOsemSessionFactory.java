@@ -49,7 +49,7 @@ public interface EsOsemSessionFactory extends OsemSessionFactory {
      * 
      * @param packagesToScan
      */
-    void setPackagesToScan(String[] packagesToScan);
+    void setPackagesToScan(String... packagesToScan);
 
     /**
      * Set location of the property file that contains common properties that
