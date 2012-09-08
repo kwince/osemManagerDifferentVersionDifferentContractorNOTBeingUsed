@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.lang.reflect.Field;
+
 import org.elasticsearch.client.Client;
 import org.junit.Test;
 import org.kwince.osem.es.cfg.Configuration;
@@ -35,7 +37,7 @@ public class TestAbstractOsemSessionFactory {
 
         // Case 1: Test sessions
         OsemSessionImpl session = (OsemSessionImpl) sessionFactory.getCurrentSession();
-        assertEquals(indexName, session.getIndexName());
+        assertEquals(indexName, getIndexName(session));
         assertEquals(session, sessionFactory.getCurrentSession());
 
         sessionFactory.removeCurrentSession();
@@ -64,7 +66,7 @@ public class TestAbstractOsemSessionFactory {
         sessionFactory.afterPropertiesSet();
 
         OsemSessionImpl session = (OsemSessionImpl) sessionFactory.getCurrentSession();
-        assertEquals(indexName, session.getIndexName());
+        assertEquals(indexName, getIndexName(session));
         assertEquals(session, sessionFactory.getCurrentSession());
 
         sessionFactory.removeCurrentSession();
@@ -73,5 +75,11 @@ public class TestAbstractOsemSessionFactory {
         // Case 2: Test configuration
         Configuration config = sessionFactory.getConfiguration();
         assertFalse(config.isDocument(User.class));
+    }
+    
+    private String getIndexName(Object obj) throws Exception {
+        Field field = OsemSessionImpl.class.getDeclaredField("indexName");
+        field.setAccessible(true);
+        return (String) field.get(obj);
     }
 }

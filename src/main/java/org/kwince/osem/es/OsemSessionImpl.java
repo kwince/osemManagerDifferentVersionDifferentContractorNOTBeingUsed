@@ -203,11 +203,7 @@ public class OsemSessionImpl implements OsemSession {
         request.setRefresh(true).setSource(sourceMap).execute().actionGet();
     }
 
-    protected String getIndexName() {
-        return indexName;
-    }
-
-    protected <T> String getType(Class<T> clazz) throws MappingException {
+    private final <T> String getType(Class<T> clazz) throws MappingException {
         return config.getDocumentName(clazz);
     }
 
